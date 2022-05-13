@@ -1,0 +1,12 @@
+{
+  "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
+  "author": "Adam Richie-Halford",
+  "development_status": "Development Status :: 3 - Alpha",
+  "email": "richiehalford@gmail.com",
+  "friendly_name": "Roardb",
+  "github_user": "richford",
+  "license": "MIT",
+  "package_name": "roardb",
+  "project_name": "roardb",
+  "version": "0.0.0"
+}
