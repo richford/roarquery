@@ -13,4 +13,4 @@
    contributing
    Code of Conduct <codeofconduct>
    License <license>
-   Changelog <https://github.com/richford/roardb/releases>
+   Changelog <https://github.com/richford/roarquery/releases>

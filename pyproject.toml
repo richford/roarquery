@@ -1,19 +1,19 @@
 [tool.poetry]
-name = "roardb"
+name = "roarquery"
 version = "0.0.0"
 description = "Roardb"
 authors = ["Adam Richie-Halford <richiehalford@gmail.com>"]
 license = "MIT"
 readme = "README.rst"
-homepage = "https://github.com/richford/roardb"
-repository = "https://github.com/richford/roardb"
-documentation = "https://roardb.readthedocs.io"
+homepage = "https://github.com/richford/roarquery"
+repository = "https://github.com/richford/roarquery"
+documentation = "https://roarquery.readthedocs.io"
 classifiers = [
     "Development Status :: 3 - Alpha",
 ]
 
 [tool.poetry.urls]
-Changelog = "https://github.com/richford/roardb/releases"
+Changelog = "https://github.com/richford/roarquery/releases"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -46,7 +46,7 @@ pyupgrade = "^2.29.1"
 furo = ">=2021.11.12"
 
 [tool.poetry.scripts]
-roardb = "roardb.__main__:main"
+roarquery = "roardb.__main__:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -54,7 +54,7 @@ tests = ["tests", "*/tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["roardb", "tests"]
+source = ["roarquery", "tests"]
 
 [tool.coverage.report]
 show_missing = true

@@ -1,6 +1,6 @@
 Usage
 =====
 
-.. click:: roardb.__main__:main
-   :prog: roardb
+.. click:: roarquery.__main__:main
+   :prog: roarquery
    :nested: full

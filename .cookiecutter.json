@@ -6,7 +6,7 @@
   "friendly_name": "Roardb",
   "github_user": "richford",
   "license": "MIT",
-  "package_name": "roardb",
-  "project_name": "roardb",
+  "package_name": "roarquery",
+  "project_name": "roarquery",
   "version": "0.0.0"
 }

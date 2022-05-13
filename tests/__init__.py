@@ -1,1 +1,1 @@
-"""Test suite for the roardb package."""
+"""Test suite for the roarquery package."""

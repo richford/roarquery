@@ -2,8 +2,8 @@ Reference
 =========
 
 
-roardb
+roarquery
 ------
 
-.. automodule:: roardb
+.. automodule:: roarquery
    :members:

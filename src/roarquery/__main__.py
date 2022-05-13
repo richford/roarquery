@@ -34,4 +34,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main(prog_name="roardb")  # pragma: no cover
+    main(prog_name="roarquery")  # pragma: no cover

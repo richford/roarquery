@@ -2,7 +2,7 @@
 import pytest
 from click.testing import CliRunner
 
-from roardb import __main__
+from roarquery import __main__
 
 
 @pytest.fixture
