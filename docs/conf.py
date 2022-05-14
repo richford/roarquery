@@ -2,7 +2,7 @@
 from datetime import datetime
 
 
-project = "Roardb"
+project = "Roarquery"
 author = "Adam Richie-Halford"
 copyright = f"{datetime.now().year}, {author}"
 extensions = [

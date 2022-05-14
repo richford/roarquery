@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "roarquery"
 version = "0.0.0"
-description = "Roardb"
+description = "Roarquery"
 authors = ["Adam Richie-Halford <richiehalford@gmail.com>"]
 license = "MIT"
 readme = "README.rst"
@@ -19,6 +19,8 @@ Changelog = "https://github.com/richford/roarquery/releases"
 python = "^3.8"
 click = "^8.0.1"
 pandas = "^1.4.2"
+python-dateutil = "^2.8.2"
+tqdm = "^4.64.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -46,7 +48,7 @@ pyupgrade = "^2.29.1"
 furo = ">=2021.11.12"
 
 [tool.poetry.scripts]
-roarquery = "roardb.__main__:main"
+roarquery = "roarquery.__main__:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

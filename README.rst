@@ -1,4 +1,4 @@
-Roardb
+Roarquery
 ======
 
 |PyPI| |Status| |Python Version| |License|
@@ -51,7 +51,7 @@ Requirements
 Installation
 ------------
 
-You can install *Roardb* via pip_ from PyPI_:
+You can install *Roarquery* via pip_ from PyPI_:
 
 .. code:: console
 
@@ -75,7 +75,7 @@ License
 -------
 
 Distributed under the terms of the `MIT license`_,
-*Roardb* is free and open source software.
+*Roarquery* is free and open source software.
 
 
 Issues

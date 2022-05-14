@@ -1,6 +1,24 @@
 import json
 import subprocess
+from re import sub
 from typing import List
+
+
+def camel_case(string: str) -> str:
+    """Convert a string to camel case.
+
+    Parameters
+    ----------
+    string : str
+        The string to convert.
+
+    Returns
+    -------
+    str
+        The camel case string.
+    """
+    string = sub(r"(_|-)+", " ", string).title().replace(" ", "")
+    return "".join([string[0].lower(), string[1:]])
 
 
 def bytes2json(bytes: bytes) -> List[dict]:
@@ -53,10 +71,6 @@ def page_results(query: List[str], limit: int = 100) -> bytes:
     while this_page:
         output.extend(bytes2json(this_page))
 
-        print(" ".join(query))
-        print("len(output):", len(output))
-        print()
-
         if len(bytes2json(this_page)) == limit:
             if "--startafter" in query:
                 start_after_idx = query.index("--startafter")
@@ -74,7 +88,7 @@ def page_results(query: List[str], limit: int = 100) -> bytes:
 
 def drop_empty(iterable: list) -> list:
     """Drop empty strings from a list.
-    
+
     Parameters
     ----------
     iterable : list
