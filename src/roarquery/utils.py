@@ -3,9 +3,14 @@ import json
 import subprocess  # noqa: S404
 from re import sub
 from typing import Any
+from typing import cast
 from typing import Dict
 from typing import List
+from typing import Literal
 from typing import TypedDict
+
+
+_FuegoKey = Literal["CreateTime", "Data", "ID", "Path", "ReadTime", "UpdateTime"]
 
 
 class _FuegoResponse(TypedDict):
@@ -54,7 +59,7 @@ def bytes2json(bytes: bytes) -> List[_FuegoResponse]:
     """
     if not bytes:
         return []
-    return json.loads(bytes.decode("utf-8"))
+    return cast(List[_FuegoResponse], json.loads(bytes.decode("utf-8")))
 
 
 def page_results(query: List[str], limit: int = 100) -> List[_FuegoResponse]:

@@ -73,6 +73,15 @@ pretty = true
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "tqdm.*",
+    "pandas",
+    "dateutil.parser"
+]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

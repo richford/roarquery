@@ -9,8 +9,47 @@ import pandas as pd
 from dateutil.parser import isoparse
 from tqdm.auto import tqdm
 
+from .utils import _FuegoKey
+from .utils import _FuegoResponse
 from .utils import page_results
 from .utils import trim_doc_path
+
+
+def merge_data_with_metadata(
+    fuego_response: List[_FuegoResponse], metadata_params: Dict[str, _FuegoKey]
+) -> List[Dict[str, Any]]:
+    """Merge trial data with metadata.
+
+    We often want to merge the run/trial data with some of the metadata returned
+    by Firestore. In Python 3.9 we could use the | operator but we want to be
+    backward compatible so we iterate over the data and metadata and merge them
+    together.
+
+    Parameters
+    ----------
+    fuego_response : List[Dict[str, Any]]
+        The trial data.
+
+    metadata_params : Dict[str, str]
+        The metadata fields that will be merged into the data. The keys are the
+        desired keys in the merged data and the values are the metadata keys to
+        use.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        The merged data.
+    """
+    item_data = [item["Data"] for item in fuego_response]
+    for item, raw_item in zip(item_data, fuego_response):
+        item.update(
+            {
+                data_key: raw_item[metadata_key]
+                for data_key, metadata_key in metadata_params.items()
+            }
+        )
+
+    return item_data
 
 
 def get_trials_from_run(run_path: str) -> List[Dict[str, Any]]:
@@ -30,17 +69,51 @@ def get_trials_from_run(run_path: str) -> List[Dict[str, Any]]:
     fuego_query = ["fuego", "query", trial_path]
     raw_trials = page_results(fuego_query)
 
-    # We want to merge the trial data with some of the metadata stored in
-    # raw_trials. In Python 3.9 we could use the | operator but we want to be
-    # backward compatible so we iterate over the trial data and trial metadata
-    # and merge them together.
-    trial_data = [trial["Data"] for trial in raw_trials]
-    for trial, raw_trial in zip(trial_data, raw_trials):
-        trial.update(
-            {"CreateTime": raw_trial["CreateTime"], "trialId": raw_trial["ID"]}
-        )
+    return merge_data_with_metadata(
+        fuego_response=raw_trials,
+        metadata_params={"CreateTime": "CreateTime", "trialId": "ID"},
+    )
 
-    return trial_data
+
+def filter_run_dates(
+    runs: List[_FuegoResponse],
+    started_before: Optional[date] = None,
+    started_after: Optional[date] = None,
+) -> List[_FuegoResponse]:
+    """Filter runs by date.
+
+    Parameters
+    ----------
+    runs : List[Dict[str, Any]]
+        The runs to filter.
+
+    started_before : date, optional, default=None
+        Return only runs started before this date.
+
+    started_after : date, optional, default=None
+        Return only runs started after this date.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        The filtered runs.
+    """
+    filtered = [run for run in runs]
+    if started_before is not None:
+        filtered = [
+            run
+            for run in filtered
+            if isoparse(run["Data"]["timeStarted"]) < started_before
+        ]
+
+    if started_after is not None:
+        filtered = [
+            run
+            for run in filtered
+            if isoparse(run["Data"]["timeStarted"]) > started_after
+        ]
+
+    return filtered
 
 
 def get_runs(
@@ -109,25 +182,19 @@ def get_runs(
         raise ValueError("Your query returned no results.")
 
     # Get rid of results that are not in the root_doc
-    if roar_uid is None:
-        runs = [run for run in runs if root_doc in run["Path"]]
+    runs = [run for run in runs if root_doc in run["Path"]]
 
     # Get rid of runs that are outside of the date range
-    if started_before is not None:
-        runs = [
-            run for run in runs if isoparse(run["Data"]["timeStarted"]) < started_before
-        ]
+    runs = filter_run_dates(
+        runs=runs, started_before=started_before, started_after=started_after
+    )
 
-    if started_after is not None:
-        runs = [
-            run for run in runs if isoparse(run["Data"]["timeStarted"]) > started_after
-        ]
-
-    run_data = [run["Data"] for run in runs]
-    for run, raw_run in zip(run_data, runs):
-        run.update({"CreateTime": raw_run["CreateTime"], "runId": raw_run["ID"]})
-
-    df_runs = pd.DataFrame(run_data)
+    df_runs = pd.DataFrame(
+        merge_data_with_metadata(
+            fuego_response=runs,
+            metadata_params={"CreateTime": "CreateTime", "runId": "ID"},
+        )
+    )
     df_runs.set_index("runId", inplace=True)
 
     if not return_trials:
@@ -145,7 +212,7 @@ def get_runs(
     }
 
     for run_id, df in run_trials.items():
-        df["runId"] = run_id
+        df["runId"] = run_id  # type: ignore [call-overload]
 
     df_trials = pd.concat(run_trials.values())
     df_trials.set_index("trialId", inplace=True)
