@@ -5,6 +5,16 @@ from re import sub
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import TypedDict
+
+
+class _FuegoResponse(TypedDict):
+    CreateTime: str
+    Data: Dict[str, Any]
+    ID: str
+    Path: str
+    ReadTime: str
+    UpdateTime: str
 
 
 def camel_case(string: str) -> str:
@@ -24,7 +34,7 @@ def camel_case(string: str) -> str:
     return "".join([string[0].lower(), string[1:]])
 
 
-def bytes2json(bytes: bytes) -> List[Dict[str, str]]:
+def bytes2json(bytes: bytes) -> List[_FuegoResponse]:
     """Convert bytes to json.
 
     Parameters
@@ -47,7 +57,7 @@ def bytes2json(bytes: bytes) -> List[Dict[str, str]]:
     return json.loads(bytes.decode("utf-8"))
 
 
-def page_results(query: List[str], limit: int = 100) -> List[Dict[str, str]]:
+def page_results(query: List[str], limit: int = 100) -> List[_FuegoResponse]:
     """Page through results from a query.
 
     Parameters
@@ -89,7 +99,7 @@ def page_results(query: List[str], limit: int = 100) -> List[Dict[str, str]]:
     return output
 
 
-def drop_empty(iterable: list) -> List[Any]:
+def drop_empty(iterable: List[Any]) -> List[Any]:
     """Drop empty strings from a list.
 
     Parameters

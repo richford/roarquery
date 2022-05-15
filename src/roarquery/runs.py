@@ -1,5 +1,6 @@
 """Query and return ROAR runs."""
 from datetime import date
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -8,11 +9,12 @@ import pandas as pd
 from dateutil.parser import isoparse
 from tqdm.auto import tqdm
 
+from .utils import _FuegoResponse
 from .utils import page_results
 from .utils import trim_doc_path
 
 
-def get_trials_from_run(run_path: str) -> List[Dict[str, str]]:
+def get_trials_from_run(run_path: str) -> List[Dict[str, Any]]:
     """Get all trials from a run.
 
     Parameters
@@ -113,10 +115,14 @@ def get_runs(
 
     # Get rid of runs that are outside of the date range
     if started_before is not None:
-        runs = [run for run in runs if isoparse(run["timeStarted"]) < started_before]
+        runs = [
+            run for run in runs if isoparse(run["Data"]["timeStarted"]) < started_before
+        ]
 
     if started_after is not None:
-        runs = [run for run in runs if isoparse(run["timeStarted"]) > started_after]
+        runs = [
+            run for run in runs if isoparse(run["Data"]["timeStarted"]) > started_after
+        ]
 
     df_runs = pd.DataFrame(runs)
     df_runs.set_index("ID", inplace=True)
