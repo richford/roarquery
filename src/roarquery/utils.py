@@ -2,6 +2,8 @@
 import json
 import subprocess  # noqa: S404
 from re import sub
+from typing import Any
+from typing import Dict
 from typing import List
 
 
@@ -22,7 +24,7 @@ def camel_case(string: str) -> str:
     return "".join([string[0].lower(), string[1:]])
 
 
-def bytes2json(bytes: bytes) -> List[dict]:
+def bytes2json(bytes: bytes) -> List[Dict[str, str]]:
     """Convert bytes to json.
 
     Parameters
@@ -45,7 +47,7 @@ def bytes2json(bytes: bytes) -> List[dict]:
     return json.loads(bytes.decode("utf-8"))
 
 
-def page_results(query: List[str], limit: int = 100) -> bytes:
+def page_results(query: List[str], limit: int = 100) -> List[Dict[str, str]]:
     """Page through results from a query.
 
     Parameters
@@ -87,7 +89,7 @@ def page_results(query: List[str], limit: int = 100) -> bytes:
     return output
 
 
-def drop_empty(iterable: list) -> list:
+def drop_empty(iterable: list) -> List[Any]:
     """Drop empty strings from a list.
 
     Parameters
@@ -123,9 +125,7 @@ def trim_doc_path(path: str) -> str:
 
     Examples
     --------
-    >>> standardize_firestore_path(
-    ...    "projects/project-id/databases/(default)/documents/prod/roar-prod"
-    ... )
+    >>> trim_doc_path("projects/proj-id/databases/(default)/documents/prod/roar-prod")
     prod/roar-prod
     """
     return path.split("databases/(default)/documents/")[-1]

@@ -1,5 +1,6 @@
 """Query and return ROAR runs."""
 from datetime import date
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -11,7 +12,7 @@ from .utils import page_results
 from .utils import trim_doc_path
 
 
-def get_trials_from_run(run_path: str) -> List[dict]:
+def get_trials_from_run(run_path: str) -> List[Dict[str, str]]:
     """Get all trials from a run.
 
     Parameters
@@ -21,7 +22,7 @@ def get_trials_from_run(run_path: str) -> List[dict]:
 
     Returns
     -------
-    List[dict]
+    List[Dict[str, str]]
         The trials from the run.
     """
     trial_path = f"{trim_doc_path(run_path)}/trials"
@@ -44,7 +45,7 @@ def get_trials_from_run(run_path: str) -> List[dict]:
 def get_runs(
     root_doc: str = "prod/roar-prod",
     return_trials: bool = False,
-    query_kwargs: Optional[dict] = None,
+    query_kwargs: Optional[Dict[str, str]] = None,
     started_before: Optional[date] = None,
     started_after: Optional[date] = None,
 ) -> pd.DataFrame:
@@ -86,6 +87,8 @@ def get_runs(
         "variantId",
     ]:
         fuego_args.extend(["--select", select])
+
+    query_kwargs = query_kwargs if query_kwargs is not None else {}
 
     # Treat the roar UID separately
     roar_uid = query_kwargs.pop("roarUid", None)
