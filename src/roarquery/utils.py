@@ -1,3 +1,4 @@
+"""Utilities functions."""
 import json
 import subprocess
 from re import sub
@@ -122,7 +123,9 @@ def trim_doc_path(path: str) -> str:
 
     Examples
     --------
-    >>> standardize_firestore_path("projects/gse-yeatmanlab/databases/(default)/documents/prod/roar-prod")
+    >>> standardize_firestore_path(
+    ...    "projects/project-id/databases/(default)/documents/prod/roar-prod"
+    ... )
     prod/roar-prod
     """
     return path.split("databases/(default)/documents/")[-1]

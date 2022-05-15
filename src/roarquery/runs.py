@@ -1,3 +1,4 @@
+"""Query and return ROAR runs."""
 from datetime import date
 from typing import List
 from typing import Optional
@@ -10,12 +11,12 @@ from .utils import page_results
 from .utils import trim_doc_path
 
 
-def get_trials_from_run(runPath: str) -> List[dict]:
+def get_trials_from_run(run_path: str) -> List[dict]:
     """Get all trials from a run.
 
     Parameters
     ----------
-    runPath : str
+    run_path : str
         The Firestore path to the run.
 
     Returns
@@ -23,7 +24,7 @@ def get_trials_from_run(runPath: str) -> List[dict]:
     List[dict]
         The trials from the run.
     """
-    trial_path = f"{trim_doc_path(runPath)}/trials"
+    trial_path = f"{trim_doc_path(run_path)}/trials"
     fuego_query = ["fuego", "query", trial_path]
     raw_trials = page_results(fuego_query)
 

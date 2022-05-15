@@ -1,3 +1,4 @@
+"""Query Firestore collections."""
 import subprocess
 
 from .utils import drop_empty

@@ -13,11 +13,12 @@ from .utils import camel_case
 \b
 Useful definitions:
 - trial: a single stimulus/response pair
-- run: globally unique collection of successive trials that constitute “running” through the task/assessment one time.
+- run: globally unique collection of successive trials.
+       This constitute “running” through the task one time.
 - corpus: A named and immutable collection of stimuli
 - block: A portion of a run whose stimuli are drawn from only one corpus.
 - task: the activity or assessment that was performed in a run (e.g. SWR, PA, SRE, etc.)
-- task-variant: a specification of the task mode, e.g. adaptive vs. random; 1 block vs 3 blocks
+- task-variant: a specification of the task, e.g. adaptive vs. random; 1 vs 3 blocks
 - school, district, class: all assume the standard meaning
 - study: a collection of runs associated with a research project
 """
@@ -35,13 +36,13 @@ def main() -> None:
     epilog="""
 Examples:
 
-  Return all runs for the "swr" task in the "validation" study and also return the trials for each run.
+  Return trials for the "swr" task in the "validation" study.
 
     $ roarquery runs --task-id=swr --study-id=validation --return-trials trials.csv
 
-  Return all runs for the "sre" task in the "brssd" district that were started after 2021-05-10.
+  Return runs for the "sre" task in the "sd" district that started after 2021-05-10.
 
-    $ roarquery runs --task-id=sre --district-id=brssd --started-after=2021-05-10 runs.csv
+    $ roarquery runs --task-id=sre --district-id=sd --started-after=2021-05-10 runs.csv
 """
 )
 @click.option(
@@ -80,7 +81,7 @@ Examples:
     "--root-doc",
     type=str,
     default="prod/roar-prod",
-    help="The Firestore root document. The returned runs will all be under this document.",
+    help="The Firestore root document. Returned runs will all be under this document.",
 )
 @click.argument(
     "output_filename",
@@ -101,7 +102,7 @@ def runs(
     root_doc: str,
     output_filename: click.Path,
 ) -> None:
-    """Return ROAR runs matching certain query parameters.
+    r"""Return ROAR runs matching certain query parameters.
 
     The options described below can be combined to return runs that match
     all of the specified query parameters.
