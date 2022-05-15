@@ -9,7 +9,6 @@ import pandas as pd
 from dateutil.parser import isoparse
 from tqdm.auto import tqdm
 
-from .utils import _FuegoResponse
 from .utils import page_results
 from .utils import trim_doc_path
 
@@ -124,9 +123,12 @@ def get_runs(
             run for run in runs if isoparse(run["Data"]["timeStarted"]) > started_after
         ]
 
-    df_runs = pd.DataFrame(runs)
-    df_runs.set_index("ID", inplace=True)
-    df_runs.index.names = ["runId"]
+    run_data = [run["Data"] for run in runs]
+    for run, raw_run in zip(run_data, runs):
+        run.update({"CreateTime": raw_run["CreateTime"], "runId": raw_run["ID"]})
+
+    df_runs = pd.DataFrame(run_data)
+    df_runs.set_index("runId", inplace=True)
 
     if not return_trials:
         return df_runs
