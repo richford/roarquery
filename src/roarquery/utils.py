@@ -1,6 +1,6 @@
 """Utilities functions."""
 import json
-import subprocess
+import subprocess  # noqa: S404
 from re import sub
 from typing import List
 
@@ -67,7 +67,7 @@ def page_results(query: List[str], limit: int = 100) -> bytes:
     query.insert(query_idx + 2, str(limit))
 
     output = []
-    this_page = subprocess.check_output(query)
+    this_page = subprocess.check_output(query)  # noqa: S603
 
     while this_page:
         output.extend(bytes2json(this_page))
@@ -80,7 +80,7 @@ def page_results(query: List[str], limit: int = 100) -> bytes:
                 query.insert(query_idx + 1, "--startafter")
                 query.insert(query_idx + 2, output[-1]["ID"])
 
-            this_page = subprocess.check_output(query)
+            this_page = subprocess.check_output(query)  # noqa: S603
         else:
             this_page = b""
 
