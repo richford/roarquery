@@ -1,9 +1,11 @@
 """Query and return ROAR runs."""
 from datetime import date
+from datetime import datetime
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 import pandas as pd
 from dateutil.parser import isoparse
@@ -77,8 +79,8 @@ def get_trials_from_run(run_path: str) -> List[Dict[str, Any]]:
 
 def filter_run_dates(
     runs: List[_FuegoResponse],
-    started_before: Optional[date] = None,
-    started_after: Optional[date] = None,
+    started_before: Optional[Union[date, datetime]] = None,
+    started_after: Optional[Union[date, datetime]] = None,
 ) -> List[_FuegoResponse]:
     """Filter runs by date.
 
@@ -97,8 +99,53 @@ def filter_run_dates(
     -------
     List[Dict[str, Any]]
         The filtered runs.
+
+    Examples
+    --------
+    >>> runs = [
+    ...     {
+    ...         "CreateTime": "2020-01-01T00:00:00.000Z",
+    ...         "Data": {
+    ...             "name": "run-1",
+    ...             "timeStarted": "2020-01-01T00:00:00.000Z",
+    ...             "classId": "class-1",
+    ...             "completed": "true",
+    ...         },
+    ...         "ID": "run-1",
+    ...         "Path": "prod/roar-prod/runs/run-1",
+    ...         "ReadTime": "2020-01-01T00:00:00.000Z",
+    ...         "UpdateTime": "2020-01-01T00:00:00.000Z",
+    ...     },
+    ...     {
+    ...         "CreateTime": "2020-02-01T00:00:00.000Z",
+    ...         "Data": {
+    ...             "name": "run-2",
+    ...             "timeStarted": "2020-02-01T00:00:00.000Z",
+    ...             "classId": "class-2",
+    ...             "completed": "true",
+    ...         },
+    ...         "ID": "run-2",
+    ...         "Path": "prod/roar-prod/runs/run-1",
+    ...         "ReadTime": "2020-02-01T00:00:00.000Z",
+    ...         "UpdateTime": "2020-02-01T00:00:00.000Z",
+    ...     },
+    ... ]
+    >>> filtered = filter_run_dates(runs, started_before=date(2020, 1, 15))
+    >>> print(filtered == [runs[0]])
+    True
     """
+    if isinstance(started_before, date):
+        started_before = datetime(
+            started_before.year, started_before.month, started_before.day
+        ).astimezone()
+
+    if isinstance(started_after, date):
+        started_after = datetime(
+            started_after.year, started_after.month, started_after.day
+        ).astimezone()
+
     filtered = [run for run in runs]
+
     if started_before is not None:
         filtered = [
             run

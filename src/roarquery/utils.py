@@ -34,13 +34,21 @@ def camel_case(string: str) -> str:
     -------
     str
         The camel case string.
+
+    Examples
+    --------
+    >>> camel_case("an_example_string")
+    anExampleString
+
+    >>> camel_case("an-example-string-with-dashes")
+    anExampleStringWithDashes
     """
     string = sub(r"(_|-)+", " ", string).title().replace(" ", "")
     return "".join([string[0].lower(), string[1:]])
 
 
 def bytes2json(bytes: bytes) -> List[_FuegoResponse]:
-    """Convert bytes to json.
+    r"""Convert bytes to json.
 
     Parameters
     ----------
@@ -54,8 +62,25 @@ def bytes2json(bytes: bytes) -> List[_FuegoResponse]:
 
     Examples
     --------
-    >>> bytes2json(b'[{"ID": "1", "Data": {"a": "b"}}]')
-    [{'ID': '1', 'Data': {'a': 'b'}}]
+    An empty string will return an empty list:
+    >>> bytes2json(b"")
+    []
+
+    >>> json_out = bytes2json(
+    ...    b'[{"ID": "1", "Data": {"a": "b"}, "Path": "prod/roar-prod", '
+    ...    b'"CreateTime": "2020-04-01T00:00:00Z", '
+    ...    b'"ReadTime": "2020-04-01T00:00:00Z", '
+    ...    b'"UpdateTime": "2020-04-01T00:00:00Z"}]'
+    ... )
+    >>> print(json_out == [{
+    ...     'ID': '1',
+    ...     'Data': {'a': 'b'},
+    ...     'Path': 'prod/roar-prod',
+    ...     'CreateTime': '2020-04-01T00:00:00Z',
+    ...     'ReadTime': '2020-04-01T00:00:00Z',
+    ...     'UpdateTime': '2020-04-01T00:00:00Z'
+    ... }])
+    True
     """
     if not bytes:
         return []
