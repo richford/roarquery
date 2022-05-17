@@ -1,7 +1,5 @@
-from typing import cast
-from typing import List
+"""Fake bytes and json responses for mocking fuego calls."""
 from roarquery.utils import bytes2json
-from roarquery.utils import _FuegoResponse
 
 
 TRIALS_BYTES = b"""
@@ -13,7 +11,7 @@ TRIALS_BYTES = b"""
         "grade": "KG"
     },
     "ID": "trial-01",
-    "Path": "databases/(default)/documents/prod/roar-prod/users/0001/runs/run-1/trials/trial-01",
+    "Path": "prod/roar-prod/users/0001/runs/run-1/trials/trial-01",
     "ReadTime": "2022-05-17T11:58:49.966593Z",
     "UpdateTime": "2022-03-30T15:53:34.246805Z"
 }
@@ -25,7 +23,7 @@ TRIALS_BYTES = b"""
         "grade": "KG"
     },
     "ID": "trial-02",
-    "Path": "databases/(default)/documents/prod/roar-prod/users/0001/runs/run-1/trials/trial-02",
+    "Path": "prod/roar-prod/users/0001/runs/run-1/trials/trial-02",
     "ReadTime": "2022-05-17T11:58:49.966593Z",
     "UpdateTime": "2022-03-30T15:58:10.022896Z"
 }
@@ -37,7 +35,7 @@ TRIALS_BYTES = b"""
         "grade": "KG"
     },
     "ID": "trial-03",
-    "Path": "databases/(default)/documents/prod/roar-prod/users/0001/runs/run-1/trials/trial-03",
+    "Path": "prod/roar-prod/users/0001/runs/run-1/trials/trial-03",
     "ReadTime": "2022-05-17T11:58:49.966593Z",
     "UpdateTime": "2022-03-30T15:53:18.428104Z"
 }
@@ -49,7 +47,7 @@ TRIALS_BYTES = b"""
         "grade": "KG"
     },
     "ID": "trial-04",
-    "Path": "databases/(default)/documents/prod/roar-prod/users/0001/runs/run-1/trials/trial-04",
+    "Path": "prod/roar-prod/users/0001/runs/run-1/trials/trial-04",
     "ReadTime": "2022-05-17T11:58:49.966593Z",
     "UpdateTime": "2022-03-30T15:54:05.697036Z"
 }
@@ -61,7 +59,7 @@ TRIALS_BYTES = b"""
         "grade": "KG"
     },
     "ID": "trial-05",
-    "Path": "databases/(default)/documents/prod/roar-prod/users/0001/runs/run-1/trials/trial-05",
+    "Path": "prod/roar-prod/users/0001/runs/run-1/trials/trial-05",
     "ReadTime": "2022-05-17T11:58:49.966593Z",
     "UpdateTime": "2022-03-30T15:57:59.397325Z"
 }
@@ -73,7 +71,7 @@ TRIALS_BYTES = b"""
         "grade": "KG"
     },
     "ID": "trial-06",
-    "Path": "databases/(default)/documents/prod/roar-prod/users/0001/runs/run-1/trials/trial-06",
+    "Path": "prod/roar-prod/users/0001/runs/run-1/trials/trial-06",
     "ReadTime": "2022-05-17T11:58:49.966593Z",
     "UpdateTime": "2022-03-30T15:54:02.891105Z"
 }
@@ -128,5 +126,5 @@ RUNS_BYTES = b"""
 """
 
 
-RUNS = cast(List[_FuegoResponse], bytes2json(RUNS_BYTES))
-TRIALS = cast(List[_FuegoResponse], bytes2json(TRIALS_BYTES))
+RUNS = bytes2json(RUNS_BYTES)
+TRIALS = bytes2json(TRIALS_BYTES)

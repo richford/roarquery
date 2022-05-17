@@ -10,14 +10,14 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
+from .mock_bytes import RUNS
+from .mock_bytes import RUNS_BYTES
+from .mock_bytes import TRIALS_BYTES
 from roarquery.runs import filter_run_dates
 from roarquery.runs import get_runs
 from roarquery.runs import get_trials_from_run
 from roarquery.runs import merge_data_with_metadata
 from roarquery.utils import bytes2json
-from .mock_bytes import RUNS
-from .mock_bytes import RUNS_BYTES
-from .mock_bytes import TRIALS_BYTES
 
 
 @pytest.mark.parametrize("date_or_datetime", [date, datetime])
@@ -143,7 +143,7 @@ def test_get_runs_empty_error(
 ) -> None:
     """It returns an error for empty query results."""
     with pytest.raises(ValueError):
-        runs = get_runs(
+        get_runs(
             query_kwargs=dict(),
         )
 
@@ -154,12 +154,10 @@ def test_get_runs_empty_error(
 def test_get_runs_and_trials(
     mock_subproc_check_output: Mock,
 ) -> None:
-    """It returns merged runs and trials"""
+    """It returns merged runs and trials."""
     trials = get_runs(
         query_kwargs=dict(), return_trials=True, started_before=date(2020, 1, 15)
     )
-
-    print(trials)
 
     df_runs = pd.DataFrame(
         merge_data_with_metadata(

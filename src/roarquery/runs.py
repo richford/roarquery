@@ -223,6 +223,7 @@ def get_runs(
         query.append(f'{key} == "{value}"')
 
     fuego_args.extend(query)
+
     runs = page_results(fuego_args)
 
     if not runs:
