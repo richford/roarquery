@@ -26,7 +26,7 @@ def test_filter_run_dates(date_or_datetime: Union[Type[date], Type[datetime]]) -
     filtered = filter_run_dates(RUNS, started_before=date_or_datetime(2020, 1, 20))
     assert filtered == [RUNS[0]]
 
-    filtered = filter_run_dates(RUNS, started_before=date_or_datetime(1900, 1, 1))
+    filtered = filter_run_dates(RUNS, started_before=date_or_datetime(1970, 2, 1))
     assert filtered == []
 
     filtered = filter_run_dates(
