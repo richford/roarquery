@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "roarquery"
-version = "0.1.2"
+version = "0.1.3"
 description = "Roarquery"
 authors = ["Adam Richie-Halford <richiehalford@gmail.com>"]
 license = "MIT"
