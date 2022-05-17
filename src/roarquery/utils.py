@@ -7,6 +7,7 @@ from typing import cast
 from typing import Dict
 from typing import List
 from typing import Literal
+from typing import Optional
 from typing import TypedDict
 
 
@@ -57,7 +58,7 @@ def bytes2json(bytes: bytes) -> List[_FuegoResponse]:
 
     Returns
     -------
-    List[dict]
+    List[_FuegoResponse]
         The converted json.
 
     Examples
@@ -87,7 +88,7 @@ def bytes2json(bytes: bytes) -> List[_FuegoResponse]:
     return cast(List[_FuegoResponse], json.loads(bytes.decode("utf-8")))
 
 
-def page_results(query: List[str], limit: int = 100) -> List[_FuegoResponse]:
+def page_results(query: List[str], limit: Optional[int] = None) -> List[_FuegoResponse]:
     """Page through results from a query.
 
     Parameters
@@ -101,9 +102,10 @@ def page_results(query: List[str], limit: int = 100) -> List[_FuegoResponse]:
 
     Returns
     -------
-    bytes
+    List[_FuegoResponse]
         The results of the query.
     """
+    limit = limit if limit is not None else 100
     query_idx = query.index("query")
     query.insert(query_idx + 1, "--limit")
     query.insert(query_idx + 2, str(limit))
