@@ -2,8 +2,22 @@ Reference
 =========
 
 
-roarquery
----------
+roarquery.runs
+--------------
 
-.. automodule:: roarquery
+.. automodule:: roarquery.runs
+   :members:
+
+
+roarquery.collections
+---------------------
+
+.. automodule:: roarquery.collections
+   :members:
+
+
+roarquery.utils
+---------------
+
+.. automodule:: roarquery.utils
    :members:

@@ -108,8 +108,8 @@ def runs(
     all of the specified query parameters.
 
     \b
-    Arguments:\b
-      OUTPUT FILENAME            Path to the output file to which to save runs/trials.\b
+    Arguments:
+      OUTPUT FILENAME            Path to the output file to which to save runs/trials.
     """
     query_kwargs = {
         "roar_uid": roar_uid,
