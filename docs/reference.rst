@@ -2,8 +2,8 @@ Reference
 =========
 
 
-roarquery
----------
+roarquery.runs
+--------------
 
-.. automodule:: roarquery
+.. automodule:: roarquery.runs
    :members:

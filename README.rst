@@ -39,13 +39,16 @@ Roarquery
 Features
 --------
 
-* TODO
+* Query ROAR runs
+* Download ROAR runs and trials
+* List ROAR Firestore collections
 
 
 Requirements
 ------------
 
-* TODO
+* Python 3.8+
+* `fuego`_
 
 
 Installation
@@ -57,9 +60,46 @@ You can install *Roarquery* via pip_ from PyPI_:
 
    $ pip install roarquery
 
+*Roarquery* also requires you to install *fuego*, a command line firestore client.
+Please see the `fuego documentation`_ for installation instructions.
+
 
 Usage
 -----
+
+Authentication
+~~~~~~~~~~~~~~
+
+Before you can use *Roarquery*, you need to provide authentication details:
+
+1. Retrieve or generate a Service Account key file.
+
+   a. go to your `Firebase project console`_,
+   b. go to "Project settings" (in the little gear menu next to "Project Overview"),
+   c. click on the "Service accounts" tab,
+   d. click on the "Generate new private key" button.
+
+2. Save this file to somewhere on your computer. For example, presuming the previous commands downloaded a file to "$HOME/downloads/private_key.json"
+
+   .. code:: bash
+
+      mv "$HOME/downloads/private_key.json" "$HOME/.firebaseconfig/private_key.json"
+
+3. Set the environment variable GOOGLE_APPLICATION_CREDENTIALS to point to this file.
+
+   .. code:: bash
+
+      export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.firebaseconfig/private_key.json"
+
+   or better yet, set this environment variable permanently in your shell configuration file.
+
+   .. code:: bash
+
+      echo "export GOOGLE_APPLICATION_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.zshrc
+
+
+Command-line Usage
+~~~~~~~~~~~~~~~~~~
 
 Please see the `Command-line Reference <Usage_>`_ for details.
 
@@ -90,12 +130,17 @@ Credits
 
 This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter`_ template.
 
+.. _authentication_instructions:
 .. _@cjolowicz: https://github.com/cjolowicz
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _PyPI: https://pypi.org/
 .. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
 .. _file an issue: https://github.com/richford/roarquery/issues
+.. _Firebase project console: https://console.firebase.google.com
+.. _fuego: https://sgarciac.github.io/fuego/
+.. _fuego documentation: https://sgarciac.github.io/fuego/#installation
+.. _service account credentials: https://sgarciac.github.io/fuego/#authentication
 .. _pip: https://pip.pypa.io/
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
