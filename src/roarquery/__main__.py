@@ -102,7 +102,7 @@ def runs(
     root_doc: str,
     output_filename: click.Path,
 ) -> None:
-    """Return ROAR runs matching certain query parameters.
+    r"""Return ROAR runs matching certain query parameters.
 
     The options described below can be combined to return runs that match
     all of the specified query parameters.
