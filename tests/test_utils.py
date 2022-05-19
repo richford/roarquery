@@ -167,7 +167,7 @@ def test_page_results(mock_subproc_check_output: Mock, limit: Optional[int]) -> 
                 "fuego",
                 "query",
                 "--startafter",
-                "test-id-3",
+                "users/0001/runs/test-id-3",
                 "--limit",
                 "1",
                 "prod/roar-prod/users/0001/runs",

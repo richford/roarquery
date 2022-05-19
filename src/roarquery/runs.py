@@ -223,7 +223,6 @@ def get_runs(
         query.append(f'{key} == "{value}"')
 
     fuego_args.extend(query)
-
     runs = page_results(fuego_args)
 
     if not runs:
@@ -243,6 +242,7 @@ def get_runs(
             metadata_params={"CreateTime": "CreateTime", "runId": "ID"},
         )
     )
+
     df_runs.set_index("runId", inplace=True)
 
     if not return_trials:

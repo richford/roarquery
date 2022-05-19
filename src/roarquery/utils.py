@@ -119,10 +119,10 @@ def page_results(query: List[str], limit: Optional[int] = None) -> List[_FuegoRe
         if len(bytes2json(this_page)) == limit:
             if "--startafter" in query:
                 start_after_idx = query.index("--startafter")
-                query[start_after_idx + 1] = output[-1]["ID"]
+                query[start_after_idx + 1] = trim_doc_path(output[-1]["Path"])
             else:
                 query.insert(query_idx + 1, "--startafter")
-                query.insert(query_idx + 2, output[-1]["ID"])
+                query.insert(query_idx + 2, trim_doc_path(output[-1]["Path"]))
 
             this_page = subprocess.check_output(query)  # noqa: S603
         else:
