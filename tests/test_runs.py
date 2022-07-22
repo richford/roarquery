@@ -169,7 +169,7 @@ def test_get_runs_and_trials(
             metadata_params={"CreateTime": "CreateTime", "runId": "ID"},
         )
     )
-    run_id = pd.unique(df_runs["runId"])[0]
+    run_ids = pd.unique(df_runs["runId"])
     df_runs.set_index("runId", inplace=True)
     df_trials = pd.DataFrame(
         merge_data_with_metadata(
@@ -177,7 +177,9 @@ def test_get_runs_and_trials(
             metadata_params={"CreateTime": "CreateTime", "trialId": "ID"},
         )
     )
-    df_trials["runId"] = run_id
+    df_trials.loc[:6, "runId"] = run_ids[0]
+    df_trials.loc[6:, "runId"] = run_ids[1]
+
     df_trials.set_index("trialId", inplace=True)
     df_trials = df_trials.merge(df_runs, left_on="runId", right_index=True, how="left")
 
@@ -185,7 +187,7 @@ def test_get_runs_and_trials(
 
 
 @patch("subprocess.check_output", side_effect=[RUNS_BYTES, TRIALS_1_BYTES])
-def test_get_runs_and_trials(
+def test_get_runs_and_trials_with_prefix(
     mock_subproc_check_output: Mock,
 ) -> None:
     """It returns merged runs and trials."""
