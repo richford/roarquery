@@ -48,6 +48,9 @@ Examples:
 @click.option(
     "--roar-uid", type=str, help="Return only runs for the user with this ROAR UID."
 )
+@click.option(
+    "--roar-uid-prefix", type=str, help="Return only runs for users with this prefix."
+)
 @click.option("--task-id", type=str, help="Return only runs for this task.")
 @click.option("--study-id", type=str, help="Return only runs for this study.")
 @click.option("--variant-id", type=str, help="Return only runs for this variant.")
@@ -89,6 +92,7 @@ Examples:
 )
 def runs(
     roar_uid: str,
+    roar_uid_prefix: str,
     task_id: str,
     study_id: str,
     variant_id: str,
@@ -113,6 +117,7 @@ def runs(
     """
     query_kwargs = {
         "roar_uid": roar_uid,
+        "roar_uid_prefix": roar_uid_prefix,
         "task_id": task_id,
         "study_id": study_id,
         "variant_id": variant_id,

@@ -9,6 +9,8 @@ from click.testing import CliRunner
 
 from .mock_bytes import RUNS
 from .mock_bytes import RUNS_BYTES
+from .mock_bytes import TRIALS_1_BYTES
+from .mock_bytes import TRIALS_4_BYTES
 from .mock_bytes import TRIALS_BYTES
 from roarquery import __main__
 from roarquery.runs import filter_run_dates
@@ -42,7 +44,9 @@ def test_runs_yields_help(runner: CliRunner) -> None:
 
 
 @pytest.mark.parametrize("completed", [True, False])
-@patch("subprocess.check_output", side_effect=[RUNS_BYTES, TRIALS_BYTES])
+@patch(
+    "subprocess.check_output", side_effect=[RUNS_BYTES, TRIALS_1_BYTES, TRIALS_4_BYTES]
+)
 def test_runs(
     mock_subproc_check_output: Mock, runner: CliRunner, completed: bool
 ) -> None:
@@ -71,7 +75,7 @@ def test_runs(
                 metadata_params={"CreateTime": "CreateTime", "runId": "ID"},
             )
         )
-        run_id = pd.unique(df_runs["runId"])[0]
+        run_ids = pd.unique(df_runs["runId"])
         df_runs.set_index("runId", inplace=True)
         df_trials = pd.DataFrame(
             merge_data_with_metadata(
@@ -79,7 +83,8 @@ def test_runs(
                 metadata_params={"CreateTime": "CreateTime", "trialId": "ID"},
             )
         )
-        df_trials["runId"] = run_id
+        df_trials.loc[:6, "runId"] = run_ids[0]
+        df_trials.loc[6:, "runId"] = run_ids[1]
         df_trials.set_index("trialId", inplace=True)
         expected = df_trials.merge(
             df_runs, left_on="runId", right_index=True, how="left"
@@ -91,7 +96,7 @@ def test_runs(
         assert output.equals(expected)
 
     mock_subproc_check_output.assert_called()
-    assert mock_subproc_check_output.call_count == 2
+    assert mock_subproc_check_output.call_count == 3
 
     expected_call_args = [
         "fuego",
@@ -131,6 +136,15 @@ def test_runs(
             "query",
             "--limit",
             "100",
-            "prod/roar-prod/users/0001/runs/run-1/trials",
+            "prod/roar-prod/users/aa-0001/runs/run-1/trials",
+        ]
+    )
+    mock_subproc_check_output.assert_any_call(
+        [
+            "fuego",
+            "query",
+            "--limit",
+            "100",
+            "prod/roar-prod/users/bb-0001/runs/run-4/trials",
         ]
     )

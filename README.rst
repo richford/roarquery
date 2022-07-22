@@ -58,11 +58,42 @@ You can install *Roarquery* via pip_ from PyPI_:
 
 .. code:: console
 
-   $ pip install roarquery
+   pip install roarquery
 
 *Roarquery* also requires you to install *fuego*, a command line firestore client.
-Please see the `fuego documentation`_ for installation instructions.
+Please see the `fuego documentation`_ for complete installation instructions.
 
+On a Mac, follow these steps:
+
+0. Ensure you have a working go installation. If
+
+.. code:: console
+
+   go Version
+
+returns something, then you are good to go. If not, install go with homebrew:
+
+.. code:: console
+
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   brew install go
+
+0. Then install *fuego*
+
+.. code:: console
+
+   git clone https://github.com/sgarciac/fuego.git
+   cd fuego
+   go build .
+   go install .
+
+0. Finally, modify your PATH variable to include the go installation directory, which can be done with the following incantation:
+
+.. code:: console
+
+   echo $HOME/go/bin | sudo tee -a /private/etc/paths.d/go
+
+0. You may need to open a new terminal window or tab for these changes to take effect.
 
 Usage
 -----
