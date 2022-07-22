@@ -12,6 +12,8 @@ import pytest
 
 from .mock_bytes import RUNS
 from .mock_bytes import RUNS_BYTES
+from .mock_bytes import TRIALS_1_BYTES
+from .mock_bytes import TRIALS_4_BYTES
 from .mock_bytes import TRIALS_BYTES
 from roarquery.runs import filter_run_dates
 from roarquery.runs import get_runs
@@ -24,7 +26,7 @@ from roarquery.utils import bytes2json
 def test_filter_run_dates(date_or_datetime: Union[Type[date], Type[datetime]]) -> None:
     """It filters runs by date."""
     filtered = filter_run_dates(RUNS, started_before=date_or_datetime(2020, 1, 20))
-    assert filtered == [RUNS[0]]
+    assert filtered == [RUNS[0], RUNS[3]]
 
     filtered = filter_run_dates(RUNS, started_before=date_or_datetime(1970, 2, 1))
     assert filtered == []
@@ -34,7 +36,7 @@ def test_filter_run_dates(date_or_datetime: Union[Type[date], Type[datetime]]) -
         started_before=date_or_datetime(2020, 2, 15),
         started_after=date_or_datetime(2020, 1, 15),
     )
-    assert filtered == [RUNS[1]]
+    assert filtered == [RUNS[1], RUNS[4]]
 
     filtered = filter_run_dates(RUNS)
     assert filtered == RUNS
@@ -52,7 +54,7 @@ def test_merge_data_with_metadata() -> None:
     assert merged == expected
 
 
-@patch("subprocess.check_output", return_value=TRIALS_BYTES)
+@patch("subprocess.check_output", return_value=TRIALS_1_BYTES)
 def test_get_trials_from_runs(mock_subproc_check_output: Mock) -> None:
     """It gets trials from runs."""
     trials = get_trials_from_run(RUNS[0]["Path"])
@@ -62,12 +64,12 @@ def test_get_trials_from_runs(mock_subproc_check_output: Mock) -> None:
     )
 
     assert trials == merge_data_with_metadata(
-        fuego_response=bytes2json(TRIALS_BYTES),
+        fuego_response=bytes2json(TRIALS_1_BYTES),
         metadata_params={"CreateTime": "CreateTime", "trialId": "ID"},
     )
 
 
-@pytest.mark.parametrize("roar_uid", [None, "0001"])
+@pytest.mark.parametrize("roar_uid", [None, "aa-0001"])
 @pytest.mark.parametrize("started_before", [None, date(2020, 2, 15)])
 @pytest.mark.parametrize("started_after", [None, date(2020, 1, 15)])
 @patch("subprocess.check_output", return_value=RUNS_BYTES)
@@ -150,7 +152,9 @@ def test_get_runs_empty_error(
     mock_subproc_check_output.assert_called_once()
 
 
-@patch("subprocess.check_output", side_effect=[RUNS_BYTES, TRIALS_BYTES])
+@patch(
+    "subprocess.check_output", side_effect=[RUNS_BYTES, TRIALS_1_BYTES, TRIALS_4_BYTES]
+)
 def test_get_runs_and_trials(
     mock_subproc_check_output: Mock,
 ) -> None:
@@ -176,5 +180,39 @@ def test_get_runs_and_trials(
     df_trials["runId"] = run_id
     df_trials.set_index("trialId", inplace=True)
     df_trials = df_trials.merge(df_runs, left_on="runId", right_index=True, how="left")
+
+    assert trials.equals(df_trials)
+
+
+@patch("subprocess.check_output", side_effect=[RUNS_BYTES, TRIALS_1_BYTES])
+def test_get_runs_and_trials(
+    mock_subproc_check_output: Mock,
+) -> None:
+    """It returns merged runs and trials."""
+    trials = get_runs(
+        query_kwargs=dict(roarUidPrefix="aa-"),
+        return_trials=True,
+        started_before=date(2020, 1, 15),
+    )
+
+    df_runs = pd.DataFrame(
+        merge_data_with_metadata(
+            filter_run_dates(RUNS, started_before=date(2020, 1, 15)),
+            metadata_params={"CreateTime": "CreateTime", "runId": "ID"},
+        )
+    )
+    run_id = pd.unique(df_runs["runId"])[0]
+    df_runs.set_index("runId", inplace=True)
+    df_trials = pd.DataFrame(
+        merge_data_with_metadata(
+            bytes2json(TRIALS_1_BYTES),
+            metadata_params={"CreateTime": "CreateTime", "trialId": "ID"},
+        )
+    )
+    df_trials["runId"] = run_id
+    df_trials.set_index("trialId", inplace=True)
+    df_trials = df_trials.merge(df_runs, left_on="runId", right_index=True, how="left")
+
+    df_trials = df_trials[df_trials.pid.str.contains("aa-")]
 
     assert trials.equals(df_trials)

@@ -213,6 +213,7 @@ def get_runs(
 
     # Treat the roar UID separately
     roar_uid = query_kwargs.pop("roarUid", None)
+    roar_uid_prefix = query_kwargs.pop("roarUidPrefix", None)
 
     if roar_uid is None:
         query = ["-g", "runs"]
@@ -230,6 +231,13 @@ def get_runs(
 
     # Get rid of results that are not in the root_doc
     runs = [run for run in runs if root_doc in run["Path"]]
+
+    if roar_uid_prefix is not None:
+        # Get rid of results that do not have the UID prefix
+        roar_uid_prefix = "/".join(
+            [root_doc.rstrip("/"), "users", roar_uid_prefix.strip("/")]
+        )
+        runs = [run for run in runs if roar_uid_prefix in run["Path"]]
 
     # Get rid of runs that are outside of the date range
     runs = filter_run_dates(
@@ -263,6 +271,7 @@ def get_runs(
         df["runId"] = run_id  # type: ignore [call-overload]
 
     df_trials = pd.concat(run_trials.values())
+
     df_trials.set_index("trialId", inplace=True)
     df_trials = df_trials.merge(df_runs, left_on="runId", right_index=True, how="left")
 

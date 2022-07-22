@@ -98,7 +98,7 @@ SIDE_EFFECT = [
             "timeStarted": "2022-04-07T17:49:47.108Z"
         },
         "ID": "test-id-0",
-        "Path": "databases/(default)/documents/users/0001/runs/test-id-0",
+        "Path": "databases/(default)/documents/users/aa-0001/runs/test-id-0",
         "ReadTime": "2022-05-16T21:26:38.099915Z",
         "UpdateTime": "2022-04-07T17:58:45.371248Z"
     }]
@@ -112,7 +112,7 @@ SIDE_EFFECT = [
             "timeStarted": "2022-03-31T16:16:39.854Z"
         },
         "ID": "test-id-1",
-        "Path": "databases/(default)/documents/users/0001/runs/test-id-1",
+        "Path": "databases/(default)/documents/users/aa-0001/runs/test-id-1",
         "ReadTime": "2022-05-16T21:26:38.099915Z",
         "UpdateTime": "2022-03-31T16:24:33.472658Z"
     }]
@@ -126,7 +126,7 @@ SIDE_EFFECT = [
             "timeStarted": "2022-03-30T17:24:51.475Z"
         },
         "ID": "test-id-2",
-        "Path": "databases/(default)/documents/users/0001/runs/test-id-2",
+        "Path": "databases/(default)/documents/users/aa-0001/runs/test-id-2",
         "ReadTime": "2022-05-16T21:26:38.099915Z",
         "UpdateTime": "2022-03-30T17:33:11.711777Z"
     }]
@@ -140,7 +140,7 @@ SIDE_EFFECT = [
             "timeStarted": "2022-03-30T15:50:44.676Z"
         },
         "ID": "test-id-3",
-        "Path": "databases/(default)/documents/users/0001/runs/test-id-3",
+        "Path": "databases/(default)/documents/users/aa-0001/runs/test-id-3",
         "ReadTime": "2022-05-16T21:26:38.099915Z",
         "UpdateTime": "2022-03-30T15:59:14.023472Z"
     }]
@@ -154,7 +154,7 @@ SIDE_EFFECT = [
 def test_page_results(mock_subproc_check_output: Mock, limit: Optional[int]) -> None:
     """It returns the results of a query."""
     results = page_results(
-        ["fuego", "query", "prod/roar-prod/users/0001/runs", 'classId=="c1"'],
+        ["fuego", "query", "prod/roar-prod/users/aa-0001/runs", 'classId=="c1"'],
         limit=limit,
     )
     mock_subproc_check_output.assert_called()
@@ -167,23 +167,22 @@ def test_page_results(mock_subproc_check_output: Mock, limit: Optional[int]) -> 
                 "fuego",
                 "query",
                 "--startafter",
-                "users/0001/runs/test-id-3",
+                "users/aa-0001/runs/test-id-3",
                 "--limit",
                 "1",
-                "prod/roar-prod/users/0001/runs",
+                "prod/roar-prod/users/aa-0001/runs",
                 'classId=="c1"',
             ]
         )
     else:
         assert [expected[0]] == results
-        print(mock_subproc_check_output.call_args)
         mock_subproc_check_output.assert_called_with(
             [
                 "fuego",
                 "query",
                 "--limit",
                 "100",
-                "prod/roar-prod/users/0001/runs",
+                "prod/roar-prod/users/aa-0001/runs",
                 'classId=="c1"',
             ]
         )
