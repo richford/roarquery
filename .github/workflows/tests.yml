@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v3.0.2
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4.1.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python }}
 
@@ -81,7 +81,7 @@ jobs:
           print("::set-output name=result::{}".format(result))
 
       - name: Restore pre-commit cache
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@v3.0.8
         if: matrix.session == 'pre-commit'
         with:
           path: ~/.cache/pre-commit
@@ -115,7 +115,7 @@ jobs:
         uses: actions/checkout@v3.0.2
 
       - name: Set up Python
-        uses: actions/setup-python@v4.1.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: "3.10"
 
