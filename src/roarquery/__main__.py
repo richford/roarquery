@@ -38,11 +38,11 @@ Examples:
 
   Return trials for the "swr" task in the "validation" study.
 
-    $ roarquery runs --task-id=swr --study-id=validation --return-trials trials.csv
+  ``roarquery runs --task-id=swr --study-id=validation --return-trials trials.csv``
 
   Return runs for the "sre" task in the "sd" district that started after 2021-05-10.
 
-    $ roarquery runs --task-id=sre --district-id=sd --started-after=2021-05-10 runs.csv
+  ``roarquery runs --task-id=sre --district-id=sd --started-after=2021-05-10 runs.csv``
 """
 )
 @click.option(

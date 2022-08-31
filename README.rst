@@ -114,19 +114,15 @@ Before you can use *Roarquery*, you need to provide authentication details:
 
    .. code:: bash
 
+      mkdir -p "$HOME/.firebaseconfig"
       mv "$HOME/downloads/private_key.json" "$HOME/.firebaseconfig/private_key.json"
 
 3. Set the environment variable GOOGLE_APPLICATION_CREDENTIALS to point to this file.
 
    .. code:: bash
 
-      export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.firebaseconfig/private_key.json"
-
-   or better yet, set this environment variable permanently in your shell configuration file.
-
-   .. code:: bash
-
-      echo "export GOOGLE_APPLICATION_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.zshrc
+      echo "export GOOGLE_APPLICATION_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.zprofile
+      echo "export GOOGLE_APPLICATION_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.bash_profile
 
 
 Command-line Usage
