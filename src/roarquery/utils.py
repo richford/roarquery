@@ -1,6 +1,6 @@
 """Utilities functions."""
 import json
-import subprocess  # noqa: S404
+import subprocess  # nosec
 from re import sub
 from typing import Any
 from typing import cast
@@ -111,7 +111,7 @@ def page_results(query: List[str], limit: Optional[int] = None) -> List[_FuegoRe
     query.insert(query_idx + 2, str(limit))
 
     output = []
-    this_page = subprocess.check_output(query)  # noqa: S603
+    this_page = subprocess.check_output(query)  # nosec
 
     while this_page:
         output.extend(bytes2json(this_page))
@@ -124,7 +124,7 @@ def page_results(query: List[str], limit: Optional[int] = None) -> List[_FuegoRe
                 query.insert(query_idx + 1, "--startafter")
                 query.insert(query_idx + 2, trim_doc_path(output[-1]["Path"]))
 
-            this_page = subprocess.check_output(query)  # noqa: S603
+            this_page = subprocess.check_output(query)  # nosec
         else:
             this_page = b""
 
