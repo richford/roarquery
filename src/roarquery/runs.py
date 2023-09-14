@@ -228,9 +228,9 @@ def get_runs_compat(
     List[dict]
         The runs that satisfy the query.
     """
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ[
-        "ROAR_QUERY_LEGACY_CREDENTIALS"
-    ]
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get(
+        "ROAR_QUERY_LEGACY_CREDENTIALS", "NONE"
+    )
 
     # Build the fuego query dynamically
     fuego_args = ["fuego", "query"]
@@ -361,7 +361,9 @@ def get_runs(
     List[dict]
         The runs that satisfy the query.
     """
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ["ROAR_QUERY_CREDENTIALS"]
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get(
+        "ROAR_QUERY_CREDENTIALS", "NONE"
+    )
 
     if user_type not in ["users", "guests"]:
         raise ValueError("user_type must be either 'users' or 'guests'")
