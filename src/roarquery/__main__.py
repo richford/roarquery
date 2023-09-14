@@ -3,7 +3,8 @@ from datetime import date
 
 import click
 
-from .runs import get_runs, get_runs_compat
+from .runs import get_runs
+from .runs import get_runs_compat
 from .utils import camel_case
 
 

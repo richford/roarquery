@@ -1,4 +1,5 @@
 """Query and return ROAR runs."""
+import os
 from datetime import date
 from datetime import datetime
 from typing import Any
@@ -7,7 +8,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import os
 import pandas as pd
 from dateutil.parser import isoparse
 from tqdm.auto import tqdm
@@ -53,6 +53,35 @@ def merge_data_with_metadata(
         )
 
     return item_data
+
+
+def get_user_from_run(run_path: str, legacy: bool = False) -> List[Dict[str, Any]]:
+    """Get the user that owns a run.
+
+    Parameters
+    ----------
+    run_path : str
+        The Firestore path to the run.
+
+    legacy : bool, optional
+        If True, the returned user will be identified by PID, otherwise the user
+        will be identified by roarUid. Default: False.
+
+    Returns
+    -------
+    List[Dict[str, str]]
+        The user that owns the run.
+    """
+    user_path = trim_doc_path(run_path).split("/runs/")[0]
+    fuego_query = ["fuego", "query", user_path]
+    user = page_results(fuego_query)
+
+    uid_key = "PID" if legacy else "roarUid"
+
+    return merge_data_with_metadata(
+        fuego_response=user,
+        metadata_params={"CreateTime": "CreateTime", uid_key: "ID"},
+    )
 
 
 def get_trials_from_run(run_path: str) -> List[Dict[str, Any]]:
@@ -170,6 +199,7 @@ def get_runs_compat(
     query_kwargs: Optional[Dict[str, str]] = None,
     started_before: Optional[date] = None,
     started_after: Optional[date] = None,
+    merge_user_info: bool = False,
 ) -> pd.DataFrame:
     """Get all runs that satisfy a specific query.
 
@@ -190,6 +220,9 @@ def get_runs_compat(
     started_after : date, optional, default=None
         Return only runs started after this date.
 
+    merge_user_info : bool, optional, default=False
+        If True, merge the user doc info into the run data.
+
     Returns
     -------
     List[dict]
@@ -202,15 +235,15 @@ def get_runs_compat(
     # Build the fuego query dynamically
     fuego_args = ["fuego", "query"]
     for select in [
-        "classId",
-        "completed",
-        "districtId",
-        "schoolId",
-        "studyId",
         "taskId",
+        "variantId",
+        "completed",
         "timeFinished",
         "timeStarted",
-        "variantId",
+        "districtId",
+        "schoolId",
+        "classId",
+        "studyId",
     ]:
         fuego_args.extend(["--select", select])
 
@@ -256,11 +289,26 @@ def get_runs_compat(
     )
 
     df_runs.set_index("runId", inplace=True)
+    run_paths = {run["ID"]: run["Path"] for run in runs}
+
+    if merge_user_info:
+        users = {
+            run_id: get_user_from_run(run_path, legacy=True)
+            for run_id, run_path in run_paths.items()
+        }
+
+        users = {run_id: pd.DataFrame(user) for run_id, user in users.items() if user}
+
+        for run_id, df in users.items():
+            df["runId"] = run_id  # type: ignore [call-overload]
+
+        df_users = pd.concat(users.values())
+        df_users.set_index("PID", inplace=True)
+
+        df_runs = df_runs.merge(df_users, left_index=True, right_on="runId", how="left")
 
     if not return_trials:
         return df_runs
-
-    run_paths = {run["ID"]: run["Path"] for run in runs}
 
     run_trials = {
         run_id: get_trials_from_run(run_path)
@@ -321,14 +369,13 @@ def get_runs(
     # Build the fuego query dynamically
     fuego_args = ["fuego", "query"]
     for select in [
-        "completed",
         "taskId",
+        "variantId",
+        "completed",
         "timeFinished",
         "timeStarted",
-        "variantId",
         "assigningOrgs",
         "scores",
-        "assessmentPid",
     ]:
         fuego_args.extend(["--select", select])
 
@@ -337,7 +384,7 @@ def get_runs(
     # Treat the roar UID separately
     query_kwargs.pop("study_id", None)
     roar_uid = query_kwargs.pop("roarUid", None)
-    pid_prefix = query_kwargs.pop("pidPrefix", None)
+    _ = query_kwargs.pop("pidPrefix", None)
 
     if roar_uid is None:
         query = ["-g", "runs"]

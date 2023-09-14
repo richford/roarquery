@@ -16,7 +16,7 @@ from .mock_bytes import TRIALS_1_BYTES
 from .mock_bytes import TRIALS_4_BYTES
 from .mock_bytes import TRIALS_BYTES
 from roarquery.runs import filter_run_dates
-from roarquery.runs import get_runs
+from roarquery.runs import get_runs_compat
 from roarquery.runs import get_trials_from_run
 from roarquery.runs import merge_data_with_metadata
 from roarquery.utils import bytes2json
@@ -85,7 +85,7 @@ def test_get_runs(
     if roar_uid is not None:
         query_kwargs["roarUid"] = roar_uid
 
-    runs = get_runs(
+    runs = get_runs_compat(
         query_kwargs=query_kwargs,
         started_before=started_before,
         started_after=started_after,
@@ -110,23 +110,23 @@ def test_get_runs(
         "--limit",
         "100",
         "--select",
-        "classId",
+        "taskId",
+        "--select",
+        "variantId",
         "--select",
         "completed",
-        "--select",
-        "districtId",
-        "--select",
-        "schoolId",
-        "--select",
-        "studyId",
-        "--select",
-        "taskId",
         "--select",
         "timeFinished",
         "--select",
         "timeStarted",
         "--select",
-        "variantId",
+        "districtId",
+        "--select",
+        "schoolId",
+        "--select",
+        "classId",
+        "--select",
+        "studyId",
     ]
 
     if roar_uid is None:
@@ -145,7 +145,7 @@ def test_get_runs_empty_error(
 ) -> None:
     """It returns an error for empty query results."""
     with pytest.raises(ValueError):
-        get_runs(
+        get_runs_compat(
             query_kwargs=dict(),
         )
 
@@ -159,7 +159,7 @@ def test_get_runs_and_trials(
     mock_subproc_check_output: Mock,
 ) -> None:
     """It returns merged runs and trials."""
-    trials = get_runs(
+    trials = get_runs_compat(
         query_kwargs=dict(), return_trials=True, started_before=date(2020, 1, 15)
     )
 
@@ -191,8 +191,8 @@ def test_get_runs_and_trials_with_prefix(
     mock_subproc_check_output: Mock,
 ) -> None:
     """It returns merged runs and trials."""
-    trials = get_runs(
-        query_kwargs=dict(roarUidPrefix="aa-"),
+    trials = get_runs_compat(
+        query_kwargs=dict(pidPrefix="aa-"),
         return_trials=True,
         started_before=date(2020, 1, 15),
     )
