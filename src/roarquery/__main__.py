@@ -3,7 +3,7 @@ from datetime import date
 
 import click
 
-from .runs import get_runs
+from .runs import get_runs, get_runs_compat
 from .utils import camel_case
 
 
@@ -46,17 +46,33 @@ Examples:
 """
 )
 @click.option(
+    "--legacy",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Return trials from the legacy database",
+)
+@click.option(
     "--roar-uid", type=str, help="Return only runs for the user with this ROAR UID."
 )
 @click.option(
-    "--roar-uid-prefix", type=str, help="Return only runs for users with this prefix."
+    "--pid-prefix", type=str, help="Return only runs for users with this prefix."
 )
 @click.option("--task-id", type=str, help="Return only runs for this task.")
-@click.option("--study-id", type=str, help="Return only runs for this study.")
+@click.option(
+    "--study-id",
+    type=str,
+    help="Return only runs for this study. Only supported in the legacy database.",
+)
 @click.option("--variant-id", type=str, help="Return only runs for this variant.")
 @click.option("--district-id", type=str, help="Return only runs for this district.")
 @click.option("--school-id", type=str, help="Return only runs for this school.")
 @click.option("--class-id", type=str, help="Return only runs with this class.")
+@click.option(
+    "--group-id",
+    type=str,
+    help="Return only runs with this group. Only supported in the current database.",
+)
 @click.option(
     "--require-completed",
     is_flag=True,
@@ -91,14 +107,16 @@ Examples:
     type=click.Path(dir_okay=False, writable=True),
 )
 def runs(
+    legacy: bool,
     roar_uid: str,
-    roar_uid_prefix: str,
+    pid_prefix: str,
     task_id: str,
     study_id: str,
     variant_id: str,
     district_id: str,
     school_id: str,
     class_id: str,
+    group_id: str,
     require_completed: bool,
     started_before: date,
     started_after: date,
@@ -117,13 +135,14 @@ def runs(
     """
     query_kwargs = {
         "roar_uid": roar_uid,
-        "roar_uid_prefix": roar_uid_prefix,
+        "pid_prefix": pid_prefix,
         "task_id": task_id,
-        "study_id": study_id,
         "variant_id": variant_id,
+        "study_id": study_id,
         "district_id": district_id,
         "school_id": school_id,
         "class_id": class_id,
+        "group_id": group_id,
     }
 
     # Convert to camelCase and remove None values.
@@ -136,13 +155,21 @@ def runs(
     if require_completed:
         query_kwargs["completed"] = "true"
 
-    df_trials = get_runs(
-        root_doc=root_doc,
-        return_trials=return_trials,
-        query_kwargs=query_kwargs,
-        started_before=started_before,
-        started_after=started_after,
-    )
+    if legacy:
+        df_trials = get_runs_compat(
+            root_doc=root_doc,
+            return_trials=return_trials,
+            query_kwargs=query_kwargs,
+            started_before=started_before,
+            started_after=started_after,
+        )
+    else:
+        df_trials = get_runs(
+            return_trials=return_trials,
+            query_kwargs=query_kwargs,
+            started_before=started_before,
+            started_after=started_after,
+        )
 
     df_trials.to_csv(output_filename, index=True)
 

@@ -47,7 +47,7 @@ Features
 Requirements
 ------------
 
-* Python 3.8+
+* Python 3.9+
 * `fuego`_
 
 
@@ -103,6 +103,11 @@ Authentication
 
 Before you can use *Roarquery*, you need to provide authentication details:
 
+*Roarquery* works with both the current and legacy ROAR assessment databases.
+For example, the `roarquery runs` subcommand accepts a `--legacy` parameter to access the legacy database.
+If you would like to use roarquery with both databases, you will need to follow
+the steps below in both the legacy and current assessment Firebase projects.
+
 1. Retrieve or generate a Service Account key file.
 
    a. go to your `Firebase project console`_,
@@ -110,19 +115,22 @@ Before you can use *Roarquery*, you need to provide authentication details:
    c. click on the "Service accounts" tab,
    d. click on the "Generate new private key" button.
 
-2. Save this file to somewhere on your computer. For example, presuming the previous commands downloaded a file to "$HOME/downloads/private_key.json"
+2. Save these files to somewhere on your computer. For example, presuming the previous commands downloaded the files to "$HOME/Downloads/private_key.json" and "$HOME/Downloads/legacy_private_key.json"
 
    .. code:: bash
 
       mkdir -p "$HOME/.firebaseconfig"
-      mv "$HOME/downloads/private_key.json" "$HOME/.firebaseconfig/private_key.json"
+      mv "$HOME/Downloads/private_key.json" "$HOME/.firebaseconfig/private_key.json"
+      mv "$HOME/Downloads/legacy_private_key.json" "$HOME/.firebaseconfig/legacy_private_key.json"
 
-3. Set the environment variable GOOGLE_APPLICATION_CREDENTIALS to point to this file.
+3. Set the environment variable `ROAR_QUERY_CREDENTIALS` (or `ROAR_QUERY_LEGACY_CREDENTIALS` for the legacy database) to point to these files.
 
    .. code:: bash
 
-      echo "export GOOGLE_APPLICATION_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.zprofile
-      echo "export GOOGLE_APPLICATION_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.bash_profile
+      echo "export ROAR_QUERY_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.zprofile
+      echo "export ROAR_QUERY_CREDENTIALS=\"$HOME/.firebaseconfig/private_key.json\"" >> ~/.bash_profile
+      echo "export ROAR_QUERY_LEGACY_CREDENTIALS=\"$HOME/.firebaseconfig/legacy_private_key.json\"" >> ~/.zprofile
+      echo "export ROAR_QUERY_LEGACY_CREDENTIALS=\"$HOME/.firebaseconfig/legacy_private_key.json\"" >> ~/.bash_profile
 
 
 Command-line Usage
