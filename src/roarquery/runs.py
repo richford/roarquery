@@ -360,7 +360,7 @@ def get_runs(
     user_type : str, optional, default="users"
         The user type to query. Either "users" or "guests".
 
-    merge_user_info : bool, optional, default=False
+    merge_user_info : bool, optional, default=True
         If True, merge the user doc info into the run data.
 
     Returns
@@ -435,6 +435,7 @@ def get_runs(
     expanded_columns = df_runs["assigningOrgs"].apply(
         partial(pd.Series, dtype="object")
     )
+
     df_runs = pd.concat(
         [
             df_runs.drop("assigningOrgs", axis=1),
@@ -445,12 +446,14 @@ def get_runs(
 
     # Normalize the 'score' column
     expanded_df = json_normalize(df_runs["scores"])
+    expanded_df["runId"] = df_runs.index
+    expanded_df.set_index("runId", inplace=True, drop=True)
 
     # Drop the original 'scores' column and concatenate the expanded data
     df_runs = pd.concat(
         [
             df_runs.drop("scores", axis=1),
-            expanded_df.reset_index(drop=True).add_prefix("scores."),
+            expanded_df.add_prefix("scores."),
         ],
         axis=1,
     )
