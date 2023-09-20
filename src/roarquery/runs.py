@@ -9,6 +9,7 @@ from typing import Optional
 from typing import Union
 
 import pandas as pd
+from pandas import json_normalize
 from dateutil.parser import isoparse
 from tqdm.auto import tqdm
 
@@ -72,9 +73,12 @@ def get_user_from_run(run_path: str, legacy: bool = False) -> List[Dict[str, Any
     List[Dict[str, str]]
         The user that owns the run.
     """
+    print(run_path)
     user_path = trim_doc_path(run_path).split("/runs/")[0]
+    print(user_path)
     fuego_query = ["fuego", "query", user_path]
     user = page_results(fuego_query)
+    print(user)
 
     uid_key = "PID" if legacy else "roarUid"
 
@@ -336,6 +340,7 @@ def get_runs(
     started_before: Optional[date] = None,
     started_after: Optional[date] = None,
     user_type: Optional[str] = "users",
+    merge_user_info: bool = False,
 ) -> pd.DataFrame:
     """Get all runs that satisfy a specific query.
 
@@ -360,6 +365,7 @@ def get_runs(
     -------
     List[dict]
         The runs that satisfy the query.
+        :param merge_user_info:
     """
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get(
         "ROAR_QUERY_CREDENTIALS", "NONE"
@@ -425,10 +431,38 @@ def get_runs(
 
     df_runs.set_index("runId", inplace=True)
 
-    if not return_trials:
-        return df_runs
+    expanded_columns = df_runs['assigningOrgs'].apply(pd.Series)
+    df_runs = pd.concat([df_runs.drop('assigningOrgs', axis=1), expanded_columns], axis=1)
+
+    # Normalize the 'score' column
+    expanded_df = json_normalize(df_runs['scores'])
+
+    # Drop the original 'scores' column and concatenate the expanded data
+
+    df_runs = pd.concat([df_runs.drop('scores', axis=1).reset_index(drop=True), expanded_df.reset_index(drop=True)], axis=1)
 
     run_paths = {run["ID"]: run["Path"] for run in runs}
+
+    """
+    if merge_user_info:
+        users = {
+            run_id: get_user_from_run(run_path, legacy=False)
+            for run_id, run_path in run_paths.items()
+        }
+
+        users = {run_id: pd.DataFrame(user) for run_id, user in users.items() if user}
+
+        for run_id, df in users.items():
+            df["runId"] = run_id  # type: ignore [call-overload]
+
+        df_users = pd.concat(users.values())
+        df_users.set_index("PID", inplace=True)
+
+        df_runs = df_runs.merge(df_users, left_index=True, right_on="runId", how="left")
+    """
+
+    if not return_trials:
+        return df_runs
 
     run_trials = {
         run_id: get_trials_from_run(run_path)
