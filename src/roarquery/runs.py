@@ -2,6 +2,8 @@
 import os
 from datetime import date
 from datetime import datetime
+from functools import partial
+import subprocess
 from typing import Any
 from typing import Dict
 from typing import List
@@ -13,7 +15,7 @@ from pandas import json_normalize
 from dateutil.parser import isoparse
 from tqdm.auto import tqdm
 
-from .utils import _FuegoKey
+from .utils import _FuegoKey, bytes2json
 from .utils import _FuegoResponse
 from .utils import page_results
 from .utils import trim_doc_path
@@ -73,19 +75,22 @@ def get_user_from_run(run_path: str, legacy: bool = False) -> List[Dict[str, Any
     List[Dict[str, str]]
         The user that owns the run.
     """
-    print(run_path)
-    user_path = trim_doc_path(run_path).split("/runs/")[0]
-    print(user_path)
-    fuego_query = ["fuego", "query", user_path]
-    user = page_results(fuego_query)
-    print(user)
+    path_split = trim_doc_path(run_path).split("/runs/")
+    user_path = path_split[0]
+    run_id = path_split[1]
+    user_collection, user_id = user_path.split("/")
+    fuego_query = ["fuego", "get", user_collection, user_id]
+    user_result = bytes2json(subprocess.check_output(fuego_query))  # nosec
+    user = user_result["Data"]
+    user["CreateTime"] = user_result["CreateTime"]
 
     uid_key = "PID" if legacy else "roarUid"
+    user[uid_key] = user_result["ID"]
+    user["runId"] = run_id
 
-    return merge_data_with_metadata(
-        fuego_response=user,
-        metadata_params={"CreateTime": "CreateTime", uid_key: "ID"},
-    )
+    invalid_keys = ["districts", "schools", "classes", "groups", "families"]
+
+    return {key: value for key, value in user.items() if key not in invalid_keys}
 
 
 def get_trials_from_run(run_path: str) -> List[Dict[str, Any]]:
@@ -296,20 +301,14 @@ def get_runs_compat(
     run_paths = {run["ID"]: run["Path"] for run in runs}
 
     if merge_user_info:
-        users = {
-            run_id: get_user_from_run(run_path, legacy=True)
-            for run_id, run_path in run_paths.items()
-        }
+        users = [
+            get_user_from_run(run_path, legacy=True) for run_path in run_paths.values()
+        ]
 
-        users = {run_id: pd.DataFrame(user) for run_id, user in users.items() if user}
+        df_users = pd.DataFrame(users)
+        df_users.set_index("runId", inplace=True)
 
-        for run_id, df in users.items():
-            df["runId"] = run_id  # type: ignore [call-overload]
-
-        df_users = pd.concat(users.values())
-        df_users.set_index("PID", inplace=True)
-
-        df_runs = df_runs.merge(df_users, left_index=True, right_on="runId", how="left")
+        df_runs = df_runs.merge(df_users, left_index=True, right_index=True, how="left")
 
     if not return_trials:
         return df_runs
@@ -340,7 +339,7 @@ def get_runs(
     started_before: Optional[date] = None,
     started_after: Optional[date] = None,
     user_type: Optional[str] = "users",
-    merge_user_info: bool = False,
+    merge_user_info: bool = True,
 ) -> pd.DataFrame:
     """Get all runs that satisfy a specific query.
 
@@ -361,11 +360,13 @@ def get_runs(
     user_type : str, optional, default="users"
         The user type to query. Either "users" or "guests".
 
+    merge_user_info : bool, optional, default=False
+        If True, merge the user doc info into the run data.
+
     Returns
     -------
     List[dict]
         The runs that satisfy the query.
-        :param merge_user_info:
     """
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get(
         "ROAR_QUERY_CREDENTIALS", "NONE"
@@ -431,35 +432,45 @@ def get_runs(
 
     df_runs.set_index("runId", inplace=True)
 
-    expanded_columns = df_runs['assigningOrgs'].apply(pd.Series)
-    df_runs = pd.concat([df_runs.drop('assigningOrgs', axis=1), expanded_columns], axis=1)
+    expanded_columns = df_runs["assigningOrgs"].apply(
+        partial(pd.Series, dtype="object")
+    )
+    df_runs = pd.concat(
+        [
+            df_runs.drop("assigningOrgs", axis=1),
+            expanded_columns.add_prefix("assigningOrgs."),
+        ],
+        axis=1,
+    )
 
     # Normalize the 'score' column
-    expanded_df = json_normalize(df_runs['scores'])
+    expanded_df = json_normalize(df_runs["scores"])
 
     # Drop the original 'scores' column and concatenate the expanded data
+    df_runs = pd.concat(
+        [
+            df_runs.drop("scores", axis=1),
+            expanded_df.reset_index(drop=True).add_prefix("scores."),
+        ],
+        axis=1,
+    )
 
-    df_runs = pd.concat([df_runs.drop('scores', axis=1).reset_index(drop=True), expanded_df.reset_index(drop=True)], axis=1)
+    df_runs.index.name = "runId"
 
     run_paths = {run["ID"]: run["Path"] for run in runs}
 
-    """
     if merge_user_info:
-        users = {
-            run_id: get_user_from_run(run_path, legacy=False)
-            for run_id, run_path in run_paths.items()
-        }
+        users = [
+            get_user_from_run(run_path, legacy=False)
+            for run_path in tqdm(run_paths.values(), desc="Merging user info")
+        ]
 
-        users = {run_id: pd.DataFrame(user) for run_id, user in users.items() if user}
+        df_users = pd.DataFrame(users)
+        df_users.set_index("runId", inplace=True)
 
-        for run_id, df in users.items():
-            df["runId"] = run_id  # type: ignore [call-overload]
-
-        df_users = pd.concat(users.values())
-        df_users.set_index("PID", inplace=True)
-
-        df_runs = df_runs.merge(df_users, left_index=True, right_on="runId", how="left")
-    """
+        df_runs = df_runs.merge(
+            df_users.add_prefix("user."), left_index=True, right_index=True, how="left"
+        )
 
     if not return_trials:
         return df_runs
