@@ -445,21 +445,20 @@ def get_runs(
         axis=1,
     )
 
-    # Normalize the 'score' column
-    if "score" in df_runs.columns:
+    # Normalize the 'scores' column
+    if "scores" in df_runs.columns:
         expanded_df = json_normalize(df_runs["scores"])
+        expanded_df["runId"] = df_runs.index
+        expanded_df.set_index("runId", inplace=True, drop=True)
 
-    expanded_df["runId"] = df_runs.index
-    expanded_df.set_index("runId", inplace=True, drop=True)
-
-    # Drop the original 'scores' column and concatenate the expanded data
-    df_runs = pd.concat(
-        [
-            df_runs.drop("scores", axis=1),
-            expanded_df.add_prefix("scores."),
-        ],
-        axis=1,
-    )
+        # Drop the original 'scores' column and concatenate the expanded data
+        df_runs = pd.concat(
+            [
+                df_runs.drop("scores", axis=1),
+                expanded_df.add_prefix("scores."),
+            ],
+            axis=1,
+        )
 
     df_runs.index.name = "runId"
 
