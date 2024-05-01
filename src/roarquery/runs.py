@@ -1,4 +1,5 @@
 """Query and return ROAR runs."""
+
 import os
 from datetime import date
 from datetime import datetime
@@ -445,7 +446,9 @@ def get_runs(
     )
 
     # Normalize the 'score' column
-    expanded_df = json_normalize(df_runs["scores"])
+    if "score" in df_runs.columns:
+        expanded_df = json_normalize(df_runs["scores"])
+
     expanded_df["runId"] = df_runs.index
     expanded_df.set_index("runId", inplace=True, drop=True)
 
